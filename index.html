@@ -1,0 +1,48 @@
+<html>
+<head>
+  <title>México - Mapa</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.3/leaflet.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.3/leaflet.js"></script>
+  <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+  <style>
+    #map{ height: 100% }
+  </style>
+
+</head>
+<body>
+
+  <div id="map"></div>
+
+  <script>
+  var map = new L.Map("map", {center: [19.4326, -99.13], zoom: 5})
+      .addLayer(new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"));
+
+      $.getJSON("states.geojson",function(data){
+       L.geoJson(data).addTo(map);
+     });
+
+     var munjson;
+     $.getJSON("municipalities.geojson", setgeoJson);
+
+      function setgeoJson(data)
+      {
+       var geoJsonLayer = L.geoJson(data, {
+         style: function(feature){
+           var fillColor;
+           colors = ["#85C1E9", "#A9CCE3", "#3498DB", "#2E86C1", "#2874A6"];
+           fillColor = colors[Math.floor(Math.random() * colors.length)];
+           return { color: "#fff", weight: 0.2, fillColor: fillColor, fillOpacity: .5 };
+         },
+         onEachFeature: function(feature, layer){
+           layer.bindPopup( "<strong>" + feature.properties.mun_name + "</strong><br/> Código de municipio: " + feature.properties.mun_code + "<br/> Código de estado: " + feature.properties.state_code )
+         }
+       }
+     ).addTo(map);
+       geoJsonLayer.eachLayer(function (layer) {
+           layer._path.id = 'estado' + layer.feature.properties.state_code+'-mun'+layer.feature.properties.mun_code;
+       });
+      }
+  </script>
+</body>
+</html>
